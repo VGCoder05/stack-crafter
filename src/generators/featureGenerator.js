@@ -27,6 +27,7 @@ async function featureGenerator(
     // Get the specific template for this feature (if user selected one)
     const selectedTemplate = featureTemplates?.[featureKey] || 'basic';
     
+    console.log("feature.setup : ",feature.setup)
     // Call the feature's setup function
     if (feature.setup) {
       await feature.setup(projectPath, { 
