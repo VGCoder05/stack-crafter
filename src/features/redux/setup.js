@@ -1,23 +1,37 @@
 const runCommand = require("../../commands/runCommand");
 const { copyTemplateFiles } = require("../../utils/fsUtils");
 const path = require("path");
+const fs = require("fs-extra");
 
-async function setupRedux(projectDir) {
-  console.log("⚡ Setting up Redux...");
+async function setupRedux(projectDir, options = {}) {
+  const { framework = 'react', featureTemplate = 'basic' } = options;
+  
+  console.log(`⚡ Setting up Redux (${featureTemplate}) for ${framework}...`);
 
-  // 1. Install dependencies
-  await runCommand("npm", ["install", "@reduxjs/toolkit", "react-redux"], {
+  // 1. Install dependencies based on framework
+  const deps = framework === 'react' 
+    ? ["@reduxjs/toolkit", "react-redux"]
+    : ["@reduxjs/toolkit"]; // Add vue-redux or other framework-specific packages
+
+  await runCommand("npm", ["install", ...deps], {
     cwd: projectDir,
   });
 
   // 2. Copy Redux boilerplate files from templates
-  const src = path.join(__dirname, "../../templates/features/redux");
-  await copyTemplateFiles(src, path.join(projectDir, "src/redux"));
+  const templatePath = path.join(__dirname, "../../templates/features/redux", featureTemplate);
+  const targetPath = path.join(projectDir, "src/redux");
+  
+  if (fs.existsSync(templatePath)) {
+    await copyTemplateFiles(templatePath, targetPath);
+  }
 
-  // 3. (Optional) inject provider into main.jsx
-  // e.g. utils.addImportAndWrap('src/main.jsx', 'Provider', '<Provider store={store}>', '</Provider>');
+  // 3. Framework-specific setup
+  if (framework === 'react') {
+    // TODO: Inject Provider into main.jsx
+    console.log("💡 Remember to wrap your App with Redux Provider in main.jsx");
+  }
 
   console.log("✅ Redux setup complete");
 }
 
-module.exports = setupRedux;
+module.exports = { setup: setupRedux };

@@ -25,7 +25,7 @@ async function projectGenerator(options) {
     console.log(chalk.green("✅ Vite project created."));
 
     // === STEP 2: Install base dependencies ===
-    await runNpmCommand(["install"], projectPath, "Installing dependencies");
+    // await runNpmCommand(["install"], projectPath, "Installing dependencies");
 
     if (features && features.length > 0)
       await featureGenerator(

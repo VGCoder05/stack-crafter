@@ -1,7 +1,7 @@
 const path = require("path");
 const fs = require("fs-extra");
 const chalk = require("chalk");
-const featuresConfig = require("../features"); // index that maps feature keys to setup functions
+const featuresConfig = require("../features");
 
 async function featureGenerator(
   projectPath,
@@ -11,6 +11,10 @@ async function featureGenerator(
   featureTemplates
 ) {
   console.log(chalk.yellow("🔧 Scaffolding selected features..."));
+
+  // Extract the base framework from template (react-ts -> react)
+  const baseFramework = template.split('-')[0];
+  const isTypeScript = template.includes('-ts');
 
   // Process each selected feature
   for (const featureKey of selectedFeatures) {
@@ -26,28 +30,10 @@ async function featureGenerator(
     // Call the feature's setup function
     if (feature.setup) {
       await feature.setup(projectPath, { 
-        template,
+        framework: baseFramework,
+        isTypeScript,
         featureTemplate: selectedTemplate 
       });
-    }
-
-    // Copy feature template files if they exist
-    const featurePath = path.join(
-      __dirname, 
-      "..", 
-      "templates", 
-      "features", 
-      featureKey,
-      selectedTemplate
-    );
-
-    console.log(`📁 Checking for feature template at: ${featurePath}`);
-
-    if (fs.existsSync(featurePath)) {
-      console.log(chalk.blue(`📋 Copying ${featureKey} (${selectedTemplate}) template files...`));
-      fs.copySync(featurePath, projectPath, { overwrite: false });
-    } else {
-      console.log(chalk.yellow(`⚠️  No template files found for ${featureKey} (${selectedTemplate})`));
     }
   }
 
