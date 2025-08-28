@@ -2,6 +2,7 @@ const path = require("path");
 const fs = require("fs-extra");
 const chalk = require("chalk");
 const featuresConfig = require("../features");
+const customDirectoryGenerator = require("./customDirectoryGenerator");
 
 async function featureGenerator(
   projectPath,
@@ -38,21 +39,10 @@ async function featureGenerator(
     }
   }
 
-  // Create custom directories
-  if (customDirs) {
-    const dirsToCreate = customDirs
-      .split(",")
-      .map((d) => d.trim())
-      .filter(Boolean);
-    
-    for (const dir of dirsToCreate) {
-      const dirPath = path.join(projectPath, "src", dir);
-      fs.ensureDirSync(dirPath);
-      console.log(chalk.gray(`📁 Created directory: src/${dir}`));
-    }
-  }
+  customDirectoryGenerator(customDirs)
 
-  console.log(chalk.green("✅ Features and custom directories created successfully!"));
+  console.log(chalk.green("✅ Features created successfully!"));
 }
 
 module.exports = featureGenerator;
+

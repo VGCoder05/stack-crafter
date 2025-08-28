@@ -1,7 +1,7 @@
 // #!/usr/bin/env node
 const inquirer = require('inquirer');
 const projectPrompts = require('./src/prompts/projectPrompts');
-// const featurePrompts = require('./prompts/featurePrompts');
+const featurePrompts = require('./src/prompts/featurePrompts');
 const projectGenerator = require('./src/generators/projectGenerator');
 
 
@@ -9,10 +9,16 @@ const projectGenerator = require('./src/generators/projectGenerator');
 async function run() {
   const answers = await inquirer.prompt([
     ...projectPrompts,
-    // ...featurePrompts,
-    // other prompts...
+    ...featurePrompts,
   ]);
-  await projectGenerator(answers);
+
+  // Find the selected template configuration
+  const templateConfig = projectPrompts
+    .find(p => p.name === 'template')
+    .choices
+    .find(c => c.value === answers.template);
+
+  await projectGenerator(answers, templateConfig);
 }
 
 // Run the CLI

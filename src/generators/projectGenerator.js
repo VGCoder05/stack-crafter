@@ -3,40 +3,33 @@ const fs = require("fs-extra");
 const chalk = require("chalk");
 const { runCommand, runNpmCommand } = require("../commands/index");
 const featureGenerator = require("./featureGenerator");
+const frontend = require("./frontendGenerator");
+const backend = require("./backendGenerator");
 
-async function projectGenerator(options) {
-  const { projectName, template, features, customDirs, featureTemplates } =
-    options;
-  const projectPath = path.join(process.cwd(), projectName);
+async function projectGenerator(options, templateConfig) {
+
+  console.log(templateConfig)
+
 
   try {
-    // === STEP 1: Scaffold with Vite ===
-    console.log(
-      chalk.yellow(`⏳ Initializing Vite project '${projectName}'...`)
-    );
+    // Create project structure based on template type
+    switch (templateConfig.type) {
+      case 'frontend':
+        await frontend(options)
+        break;
 
-    // create vite project
-    await runCommand(
-      "npx",
-      ["create-vite@latest", projectName, "--template", template],
-      { stdio: "pipe" }
-    ); // Use 'pipe' to suppress interactive prompts
+      case 'backend':
+        await backend(options)
+        break;
 
-    console.log(chalk.green("✅ Vite project created."));
+      case 'fullstack':
+        await frontend(options);
+        await backend(options);
+        break;
 
-    // === STEP 2: Install base dependencies ===
-    // await runNpmCommand(["install"], projectPath, "Installing dependencies");
-
-    if (features && features.length > 0)
-      await featureGenerator(
-        projectPath,
-        features,
-        template,
-        customDirs,
-        featureTemplates
-      );
-
-    // leave further feature scaffolding to featureGenerator
+      default:
+        throw new Error(`Unknown template type: ${templateConfig.type}`);
+    }
 
     console.log(
       chalk.green.bold(`\n🎉 Success! Your project '${projectName}' is ready.`)
